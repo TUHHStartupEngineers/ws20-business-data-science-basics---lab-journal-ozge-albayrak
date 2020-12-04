@@ -67,7 +67,7 @@ sales_by_location_tbl %>%
     x = "", # Override defaults for x and y
     y = "Revenue"
   )
-  
+
 theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 # 6.2 Sales by Location and Year ----
@@ -100,7 +100,7 @@ sales_by_location_year_tbl %>%
                                                     decimal.mark = ",", 
                                                     prefix = "", 
                                                     suffix = " €")) +
-
+  
   labs(
     title    = "Revenue by year and state",
     subtitle = "North Rhine-Westphalia state has the highest revenue.", 
@@ -122,4 +122,3 @@ bike_orderlines_wrangled_tbl %>%
 # 7.3 RDS ----
 bike_orderlines_wrangled_tbl %>% 
   write_csv("data-science/00_data/01_bike_sales/02_wrangled_data/bike_location.rds")
-
