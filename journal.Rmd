@@ -22,31 +22,31 @@ This is an `.Rmd` file. It is plain text with special features. Any time you wri
 
 # Challenge 1 
 
-## Sales Analysis by Location 
-```{r plot, fig.width=10, fig.height=7}
+## Sales Analysis by State 
+```{r plot, fig.width=15, fig.height=7}
 
-# 1.0 Load libraries ----
+# Load libraries ----
 library(tidyverse)
 library(readxl)
 
-# 2.0 Importing Files ----
-bikeshops_tbl <- read_excel("00_data/01_bike_sales/01_raw_data/bikeshops.xlsx")
+# Importing Files ----
+bikeshops_tbl <- read_excel("data-science/00_data/01_bike_sales/01_raw_data/bikeshops.xlsx")
 
-bikes_tbl      <- read_excel(path = "00_data/01_bike_sales/01_raw_data/bikes.xlsx")
-orderlines_tbl <- read_excel("00_data/01_bike_sales/01_raw_data/orderlines.xlsx")
+bikes_tbl      <- read_excel(path = "data-science/00_data/01_bike_sales/01_raw_data/bikes.xlsx")
+orderlines_tbl <- read_excel("data-science/00_data/01_bike_sales/01_raw_data/orderlines.xlsx")
 
-# 3.0 Examining Data ----
+# Examining Data ----
 bikeshops_tbl
 glimpse(bikeshops_tbl)
 
-# 4.0 Joining Data ----
+# Joining Data ----
 bike_orderlines_joined_tbl <- orderlines_tbl %>%
   left_join(bikes_tbl, by = c("product.id" = "bike.id")) %>%
   left_join(bikeshops_tbl, by = c("customer.id" = "bikeshop.id"))
 
-bike_orderlines_joined_tbl %>% glimpse()
+bike_orderlines_joined_tbl
 
-# 5.0 Wrangling Data ----
+# Wrangling Data ----
 bike_orderlines_wrangled_tbl <- bike_orderlines_joined_tbl %>% 
   separate(col = location, into = c("city", "state"), sep = ",") %>%
   mutate(revenue = price * quantity) %>%
@@ -58,12 +58,11 @@ bike_orderlines_wrangled_tbl <- bike_orderlines_joined_tbl %>%
   rename(bikeshop = name) %>%
   set_names(names(.) %>% str_replace_all("\\.", "_"))
 
-bike_orderlines_wrangled_tbl %>% glimpse()
+bike_orderlines_wrangled_tbl
 
-# 6.0 Business Insights ----
-# 6.1 Sales by Location ----
+# Sales by State ----
 
-# Step 1 - Manipulate
+# Manipulate
 
 sales_by_location_tbl <- bike_orderlines_wrangled_tbl %>%
   select(state, revenue) %>%
@@ -75,13 +74,14 @@ sales_by_location_tbl <- bike_orderlines_wrangled_tbl %>%
                                      prefix = "",
                                      suffix = " €"))
 
-sales_by_location_tbl %>% glimpse()
+sales_by_location_tbl
 
-# Step 2 - Visualize
+# Visualize
 sales_by_location_tbl %>% 
   ggplot(aes(x = state, y = sales)) +
   geom_col(fill = "#00abff") +
   geom_label(aes(label = sales_text)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   scale_y_continuous(labels = scales::dollar_format(big.mark = ".", 
                                                     decimal.mark = ",", 
                                                     prefix = "", 
@@ -95,9 +95,9 @@ sales_by_location_tbl %>%
 theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 
-## Sales Analysis between 2015-2019 by Location 
+## Sales Analysis between 2015-2019 by State
 
-# Step 1 - Manipulate
+# Manipulate
 library(lubridate)
 
 sales_by_location_year_tbl <- bike_orderlines_wrangled_tbl %>%
@@ -111,9 +111,9 @@ sales_by_location_year_tbl <- bike_orderlines_wrangled_tbl %>%
                                      prefix = "",
                                      suffix = " €"))
 
-sales_by_location_year_tbl %>% glimpse()
+sales_by_location_year_tbl
 
-# Step 2 - Visualize
+# Visualize
 sales_by_location_year_tbl %>% 
   ggplot(aes(x = year, y = sales, fill = state)) +
   geom_col() +

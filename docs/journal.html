@@ -11,7 +11,7 @@
 
 <meta name="author" content="Ozge Beyza Albayrak" />
 
-<meta name="date" content="2020-11-05" />
+<meta name="date" content="2020-12-04" />
 
 <title>Journal (reproducible report)</title>
 
@@ -405,29 +405,233 @@ div.tocify {
 
 <h1 class="title toc-ignore">Journal (reproducible report)</h1>
 <h4 class="author">Ozge Beyza Albayrak</h4>
-<h4 class="date">2020-11-05</h4>
+<h4 class="date">04 December 2020</h4>
 
 </div>
 
 
 <p><strong>IMPORTANT:</strong> You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.</p>
 <p>This is an <code>.Rmd</code> file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.</p>
-<div id="my-first-post" class="section level1">
-<h1><span class="header-section-number">1</span> My first post</h1>
-<p>Last compiled: 2020-12-01</p>
+<div id="challenge-1" class="section level1">
+<h1><span class="header-section-number">1</span> Challenge 1</h1>
+<div id="sales-analysis-by-state" class="section level2">
+<h2><span class="header-section-number">1.1</span> Sales Analysis by State</h2>
+<pre class="r"><code># Load libraries ----
+library(tidyverse)
+library(readxl)
+
+# Importing Files ----
+bikeshops_tbl &lt;- read_excel(&quot;data-science/00_data/01_bike_sales/01_raw_data/bikeshops.xlsx&quot;)
+
+bikes_tbl      &lt;- read_excel(path = &quot;data-science/00_data/01_bike_sales/01_raw_data/bikes.xlsx&quot;)
+orderlines_tbl &lt;- read_excel(&quot;data-science/00_data/01_bike_sales/01_raw_data/orderlines.xlsx&quot;)
+
+# Examining Data ----
+bikeshops_tbl</code></pre>
+<pre><code>## # A tibble: 30 x 5
+##    bikeshop.id name                  location                          lat   lng
+##          &lt;dbl&gt; &lt;chr&gt;                 &lt;chr&gt;                           &lt;dbl&gt; &lt;dbl&gt;
+##  1           1 Zum Goldenen Lenker   Berlin, Berlin                   52.5 13.4 
+##  2           2 AlexandeRad           Hamburg, Hamburg                 53.6 10.0 
+##  3           3 Fahrradladen 16       Munich, Bavaria                  48.2 11.6 
+##  4           4 Bikestation Köln      Cologne, North Rhine-Westphalia  50.9  6.95
+##  5           5 Montimare             Frankfurt, Hesse                 50.1  8.68
+##  6           6 fahrschneller         Stuttgart, Baden-Württemberg     48.8  9.18
+##  7           7 Rad Ab                Düsseldorf, North Rhine-Westph…  51.2  6.79
+##  8           8 Lucky Bike            Dortmund, North Rhine-Westphal…  51.5  7.47
+##  9           9 Zweirad-Center Stadl… Essen, North Rhine-Westphalia    51.5  7.01
+## 10          10 WITT-RAD              Bremen, Bremen                   53.1  8.83
+## # … with 20 more rows</code></pre>
+<pre class="r"><code>glimpse(bikeshops_tbl)</code></pre>
+<pre><code>## Rows: 30
+## Columns: 5
+## $ bikeshop.id &lt;dbl&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17…
+## $ name        &lt;chr&gt; &quot;Zum Goldenen Lenker&quot;, &quot;AlexandeRad&quot;, &quot;Fahrradladen 16&quot;, …
+## $ location    &lt;chr&gt; &quot;Berlin, Berlin&quot;, &quot;Hamburg, Hamburg&quot;, &quot;Munich, Bavaria&quot;, …
+## $ lat         &lt;dbl&gt; 52.51667, 53.57532, 48.15000, 50.93333, 50.11552, 48.7823…
+## $ lng         &lt;dbl&gt; 13.400000, 10.015340, 11.583333, 6.950000, 8.684167, 9.18…</code></pre>
+<pre class="r"><code># Joining Data ----
+bike_orderlines_joined_tbl &lt;- orderlines_tbl %&gt;%
+  left_join(bikes_tbl, by = c(&quot;product.id&quot; = &quot;bike.id&quot;)) %&gt;%
+  left_join(bikeshops_tbl, by = c(&quot;customer.id&quot; = &quot;bikeshop.id&quot;))
+
+bike_orderlines_joined_tbl</code></pre>
+<pre><code>## # A tibble: 15,644 x 19
+##    ...1  order.id order.line order.date          customer.id product.id quantity
+##    &lt;chr&gt;    &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;                    &lt;dbl&gt;      &lt;dbl&gt;    &lt;dbl&gt;
+##  1 1            1          1 2015-01-07 00:00:00           2       2681        1
+##  2 2            1          2 2015-01-07 00:00:00           2       2411        1
+##  3 3            2          1 2015-01-10 00:00:00          10       2629        1
+##  4 4            2          2 2015-01-10 00:00:00          10       2137        1
+##  5 5            3          1 2015-01-10 00:00:00           6       2367        1
+##  6 6            3          2 2015-01-10 00:00:00           6       1973        1
+##  7 7            3          3 2015-01-10 00:00:00           6       2422        1
+##  8 8            3          4 2015-01-10 00:00:00           6       2655        1
+##  9 9            3          5 2015-01-10 00:00:00           6       2247        1
+## 10 10           4          1 2015-01-11 00:00:00          22       2408        1
+## # … with 15,634 more rows, and 12 more variables: model &lt;chr&gt;,
+## #   model.year &lt;dbl&gt;, frame.material &lt;chr&gt;, weight &lt;dbl&gt;, price &lt;dbl&gt;,
+## #   category &lt;chr&gt;, gender &lt;chr&gt;, url &lt;chr&gt;, name &lt;chr&gt;, location &lt;chr&gt;,
+## #   lat &lt;dbl&gt;, lng &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Wrangling Data ----
+bike_orderlines_wrangled_tbl &lt;- bike_orderlines_joined_tbl %&gt;% 
+  separate(col = location, into = c(&quot;city&quot;, &quot;state&quot;), sep = &quot;,&quot;) %&gt;%
+  mutate(revenue = price * quantity) %&gt;%
+  select(-...1, -(gender:url)) %&gt;%
+  select(-ends_with(&quot;.id&quot;)) %&gt;%
+  bind_cols(bike_orderlines_joined_tbl %&gt;% select(order.id)) %&gt;% 
+  select(order.id, contains(&quot;order&quot;), contains(&quot;model&quot;), contains(&quot;city&quot;), contains(&quot;state&quot;), 
+         price, quantity, revenue, everything()) %&gt;%
+  rename(bikeshop = name) %&gt;%
+  set_names(names(.) %&gt;% str_replace_all(&quot;\\.&quot;, &quot;_&quot;))
+
+bike_orderlines_wrangled_tbl</code></pre>
+<pre><code>## # A tibble: 15,644 x 16
+##    order_id order_line order_date          model model_year city  state price
+##       &lt;dbl&gt;      &lt;dbl&gt; &lt;dttm&gt;              &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;
+##  1        1          1 2015-01-07 00:00:00 Spec…       2021 Hamb… &quot; Ha…  3119
+##  2        1          2 2015-01-07 00:00:00 Ulti…       2020 Hamb… &quot; Ha…  5359
+##  3        2          1 2015-01-10 00:00:00 Neur…       2021 Brem… &quot; Br…  2729
+##  4        2          2 2015-01-10 00:00:00 Spee…       2019 Brem… &quot; Br…  1749
+##  5        3          1 2015-01-10 00:00:00 Stit…       2020 Stut… &quot; Ba…  1219
+##  6        3          2 2015-01-10 00:00:00 Road…       2020 Stut… &quot; Ba…  1359
+##  7        3          3 2015-01-10 00:00:00 Spee…       2020 Stut… &quot; Ba…  2529
+##  8        3          4 2015-01-10 00:00:00 Infl…       2021 Stut… &quot; Ba…  1559
+##  9        3          5 2015-01-10 00:00:00 Torq…       2020 Stut… &quot; Ba…  3899
+## 10        4          1 2015-01-11 00:00:00 Ulti…       2020 Augs… &quot; Ba…  6629
+## # … with 15,634 more rows, and 8 more variables: quantity &lt;dbl&gt;, revenue &lt;dbl&gt;,
+## #   frame_material &lt;chr&gt;, weight &lt;dbl&gt;, category &lt;chr&gt;, bikeshop &lt;chr&gt;,
+## #   lat &lt;dbl&gt;, lng &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Sales by State ----
+
+# Manipulate
+
+sales_by_location_tbl &lt;- bike_orderlines_wrangled_tbl %&gt;%
+  select(state, revenue) %&gt;%
+  group_by(state) %&gt;%
+  summarise(sales = sum(revenue)) %&gt;%
+  arrange(desc(sales)) %&gt;%
+  mutate(sales_text = scales::dollar(sales, big.mark = &quot;.&quot;, 
+                                     decimal.mark = &quot;,&#39;&quot;, 
+                                     prefix = &quot;&quot;,
+                                     suffix = &quot; €&quot;))
+
+sales_by_location_tbl</code></pre>
+<pre><code>## # A tibble: 12 x 3
+##    state                               sales sales_text  
+##    &lt;chr&gt;                               &lt;dbl&gt; &lt;chr&gt;       
+##  1 &quot; North Rhine-Westphalia&quot;        21200613 21.200.613 €
+##  2 &quot; Bremen&quot;                        10653499 10.653.499 €
+##  3 &quot; Bavaria&quot;                        6742819 6.742.819 € 
+##  4 &quot; Baden-Württemberg&quot;              6521090 6.521.090 € 
+##  5 &quot; Lower Saxony&quot;                   4107115 4.107.115 € 
+##  6 &quot; Hamburg&quot;                        3874756 3.874.756 € 
+##  7 &quot; Schleswig-Holstein&quot;             3224749 3.224.749 € 
+##  8 &quot; Saxony&quot;                         2230245 2.230.245 € 
+##  9 &quot; Hesse&quot;                          1558901 1.558.901 € 
+## 10 &quot; Berlin&quot;                         1128433 1.128.433 € 
+## 11 &quot; Mecklenburg-Western Pomerania&quot;   618974 618.974 €   
+## 12 &quot; Saxony-Anhalt&quot;                   569614 569.614 €</code></pre>
+<pre class="r"><code># Visualize
+sales_by_location_tbl %&gt;% 
+  ggplot(aes(x = state, y = sales)) +
+  geom_col(fill = &quot;#00abff&quot;) +
+  geom_label(aes(label = sales_text)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = scales::dollar_format(big.mark = &quot;.&quot;, 
+                                                    decimal.mark = &quot;,&quot;, 
+                                                    prefix = &quot;&quot;, 
+                                                    suffix = &quot; €&quot;)) +
+  labs(
+    title    = &quot;Revenue by state&quot;,
+    x = &quot;&quot;, # Override defaults for x and y
+    y = &quot;Revenue&quot;
+  )</code></pre>
+<p><img src="journal_files/figure-html/plot-1.png" width="1440" /></p>
+<pre class="r"><code>theme(axis.text.x = element_text(angle = 45, hjust = 1)) </code></pre>
+<pre><code>## List of 1
+##  $ axis.text.x:List of 11
+##   ..$ family       : NULL
+##   ..$ face         : NULL
+##   ..$ colour       : NULL
+##   ..$ size         : NULL
+##   ..$ hjust        : num 1
+##   ..$ vjust        : NULL
+##   ..$ angle        : num 45
+##   ..$ lineheight   : NULL
+##   ..$ margin       : NULL
+##   ..$ debug        : NULL
+##   ..$ inherit.blank: logi FALSE
+##   ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;element_text&quot; &quot;element&quot;
+##  - attr(*, &quot;class&quot;)= chr [1:2] &quot;theme&quot; &quot;gg&quot;
+##  - attr(*, &quot;complete&quot;)= logi FALSE
+##  - attr(*, &quot;validate&quot;)= logi TRUE</code></pre>
+<pre class="r"><code>## Sales Analysis between 2015-2019 by State
+
+# Manipulate
+library(lubridate)
+
+sales_by_location_year_tbl &lt;- bike_orderlines_wrangled_tbl %&gt;%
+  select(state, order_date, revenue) %&gt;%
+  mutate(year = year(order_date)) %&gt;%
+  group_by(state, year) %&gt;%
+  summarise(sales = sum(revenue)) %&gt;%
+  ungroup() %&gt;%
+  mutate(sales_text = scales::dollar(sales, big.mark = &quot;.&quot;, 
+                                     decimal.mark = &quot;,&#39;&quot;, 
+                                     prefix = &quot;&quot;,
+                                     suffix = &quot; €&quot;))
+
+sales_by_location_year_tbl</code></pre>
+<pre><code>## # A tibble: 60 x 4
+##    state                 year   sales sales_text 
+##    &lt;chr&gt;                &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;      
+##  1 &quot; Baden-Württemberg&quot;  2015 1031924 1.031.924 €
+##  2 &quot; Baden-Württemberg&quot;  2016 1561658 1.561.658 €
+##  3 &quot; Baden-Württemberg&quot;  2017 1224152 1.224.152 €
+##  4 &quot; Baden-Württemberg&quot;  2018 1114327 1.114.327 €
+##  5 &quot; Baden-Württemberg&quot;  2019 1589029 1.589.029 €
+##  6 &quot; Bavaria&quot;            2015 1301461 1.301.461 €
+##  7 &quot; Bavaria&quot;            2016 1129852 1.129.852 €
+##  8 &quot; Bavaria&quot;            2017 1411851 1.411.851 €
+##  9 &quot; Bavaria&quot;            2018 1168783 1.168.783 €
+## 10 &quot; Bavaria&quot;            2019 1730872 1.730.872 €
+## # … with 50 more rows</code></pre>
+<pre class="r"><code># Visualize
+sales_by_location_year_tbl %&gt;% 
+  ggplot(aes(x = year, y = sales, fill = state)) +
+  geom_col() +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE) + # Adding a trendline
+  
+  facet_wrap(~ state) +
+  
+  scale_y_continuous(labels = scales::dollar_format(big.mark = &quot;.&quot;, 
+                                                    decimal.mark = &quot;,&quot;, 
+                                                    prefix = &quot;&quot;, 
+                                                    suffix = &quot; €&quot;)) +
+
+  labs(
+    title    = &quot;Revenue by year and state&quot;,
+    subtitle = &quot;North Rhine-Westphalia state has the highest revenue.&quot;, 
+    x = &quot;&quot;,
+    fill = &quot;States&quot; 
+  )</code></pre>
+<p><img src="journal_files/figure-html/plot-2.png" width="1440" /></p>
+<p>Last compiled: 2020-12-04</p>
 <p>Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left.</p>
+</div>
 <div id="second-level-header" class="section level2">
-<h2><span class="header-section-number">1.1</span> Second level header</h2>
+<h2><span class="header-section-number">1.2</span> Second level header</h2>
 <p>You can add more headers by adding more hashtags. These won’t be put into the table of contents</p>
 <div id="third-level-header" class="section level3">
-<h3><span class="header-section-number">1.1.1</span> third level header</h3>
+<h3><span class="header-section-number">1.2.1</span> third level header</h3>
 <p>Here’s an even lower level header</p>
 </div>
 </div>
 </div>
 <div id="my-second-post-note-the-order" class="section level1">
 <h1><span class="header-section-number">2</span> My second post (note the order)</h1>
-<p>Last compiled: 2020-12-01</p>
+<p>Last compiled: 2020-12-04</p>
 <p>I’m writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom</p>
 </div>
 <div id="adding-r-stuff" class="section level1">
