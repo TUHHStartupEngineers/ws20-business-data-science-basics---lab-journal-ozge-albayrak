@@ -7,10 +7,10 @@ library(readxl)
 
 # 2.0 Importing Files ----
 
-bikes_tbl      <- read_excel(path = "00_data/01_bike_sales/01_raw_data/bikes.xlsx")
-orderlines_tbl <- read_excel("00_data/01_bike_sales/01_raw_data/orderlines.xlsx")
+bikes_tbl      <- read_excel(path = "data-science/00_data/01_bike_sales/01_raw_data/bikes.xlsx")
+orderlines_tbl <- read_excel("data-science/00_data/01_bike_sales/01_raw_data/orderlines.xlsx")
 
-bikeshops_tbl <- read_excel("00_data/01_bike_sales/01_raw_data/bikeshops.xlsx")
+bikeshops_tbl <- read_excel("data-science/00_data/01_bike_sales/01_raw_data/bikeshops.xlsx")
 # 3.0 Examining Data ----
 orderlines_tbl
 glimpse(orderlines_tbl)
@@ -114,14 +114,14 @@ sales_by_year_cat_2_tbl %>%
 install.packages("writexl")
 library(writexl)
 bike_orderlines_wrangled_tbl %>%
-  write_xlsx("00_data/01_bike_sales/02_wrangled_data/bike_orderlines.xlsx")
+  write_xlsx("data-science/00_data/01_bike_sales/02_wrangled_data/bike_orderlines.xlsx")
 
 
 # 7.2 CSV ----
 bike_orderlines_wrangled_tbl %>% 
-  write_csv("00_data/01_bike_sales/02_wrangled_data/bike_orderlines.csv")
+  write_csv("data-science/00_data/01_bike_sales/02_wrangled_data/bike_orderlines.csv")
 
 # 7.3 RDS ----
 bike_orderlines_wrangled_tbl %>%
-  write_rds("00_data/01_bike_sales/02_wrangled_data/bike_orderlines.rds")
+  write_rds("data-science/00_data/01_bike_sales/02_wrangled_data/bike_orderlines.rds")
 

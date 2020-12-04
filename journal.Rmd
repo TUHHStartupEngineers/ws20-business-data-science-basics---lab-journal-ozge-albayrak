@@ -127,7 +127,7 @@ sales_by_location_year_tbl %>%
                                                     suffix = " €")) +
 
   labs(
-    title    = "Revenue by year and state",
+    title    = "Revenue by Year (2015-2019) and State",
     subtitle = "North Rhine-Westphalia state has the highest revenue.", 
     x = "",
     fill = "States" 
