@@ -87,7 +87,7 @@ sales_by_year_cat_2_tbl <- bike_orderlines_wrangled_tbl %>%
                                      decimal.mark = ",'", 
                                      prefix = "",
                                      suffix = " €"))
-  
+
 sales_by_year_cat_2_tbl %>% glimpse()
 
 # Step 2 - Visualize
