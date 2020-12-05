@@ -20,7 +20,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 
 This is an `.Rmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
 
-# Challenge 1 
+# Challenge #1 - Sales Analysis
 
 ## Sales Analysis by State 
 ```{r plot, fig.width=15, fig.height=7}
@@ -136,6 +136,122 @@ sales_by_location_year_tbl %>%
 ```
 
 Last compiled: `r Sys.Date()`
+
+# Challenge #2 - API & WEB Scraping
+
+For Challenge 2 Part 1, I used an API for predicting nationality from a name (Nationalize.io). The website predicts the nationality of a person according to the given name. 
+
+## Part 1 - API Data
+### Predicting Nationality by Name
+```{r Challenge 2 - Data Acqusition Part 1}
+
+library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
+library(rvest)     # HTML Hacking & Web Scraping
+library(xopen)     # Quickly opening URLs
+library(jsonlite)  # converts JSON files to R objects
+library(glue)      # concatenate strings
+library(stringi)   # character string/text processing
+library(httr)
+
+nationality_search_api <- function(query) {
+  url <- modify_url(url = "https://api.nationalize.io/",
+                    query = glue("{query}"))
+  resp <- GET(url)
+  stop_for_status(resp) # automatically throws an error if a request did not succeed
+}
+
+
+resp <- nationality_search_api("name=john")
+
+# Convert JSON as text into a nested list object and convert to tibble
+resp_tbl <- fromJSON(content(resp, as = "text")) %>%
+  as_tibble()
+resp_tbl
+
+```
+## Part 2 - Web Scraping 
+### Rosé Bikes
+```{r Challenge 2 - Data Acqusition Part 2}
+library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
+library(rvest)     # HTML Hacking & Web Scraping
+library(xopen)     # Quickly opening URLs
+library(jsonlite)  # converts JSON files to R objects
+library(glue)      # concatenate strings
+library(stringi)   # character string/text processing
+
+# Collecting Products 
+url_home <- "https://www.rosebikes.com"
+
+# Read in the HTML for the entire webpage
+html_home <- read_html(url_home)
+
+# Web scraping for the families of bikes
+rosebike_family_tbl <- html_home %>%
+  # Get the nodes for the families
+  html_nodes(css = ".main-navigation-category-with-tiles__link") %>%
+  html_attr('href') %>%
+  # Remove the category Sale because they are already listed
+  discard(.p = ~stringr::str_detect(.x,"sale")) %>%
+  # Convert vector to tibble
+  enframe(name = "position", value = "path_category") %>%
+  # Add a new column with category name
+  mutate(category = stringr::str_replace(path_category,"/bikes/",""))
+
+rosebike_family_tbl 
+
+# Create new url by appending '/'bikes/mtb' to original url (url_home)
+rosebike_mtb_url <- str_c(url_home, rosebike_family_tbl$path_category[1])
+
+# Read in the HTML for the category web page
+rosebike_mtb_html<- read_html(rosebike_mtb_url)
+
+# Getting names for "mtb"
+rosebike_mtb_mdl_names <- rosebike_mtb_html %>%
+  # Get the nodes for the model names 
+  html_nodes(".catalog-category-title__title") %>%
+  # ...and extract the text info
+  html_text(trim = TRUE) %>%
+  # Convert vector to tibble
+  enframe(name = "position", value = "model_name") %>%
+  # Adding a new column
+  mutate(category = toupper(rosebike_family_tbl$path_category[1])) %>%
+  select(-(position))
+
+# Print ROSE's Road Bikes model names
+rosebike_mtb_mdl_names 
+
+
+# Getting prices for "mtb"
+rosebike_mtb_mdl_prices <- rosebike_mtb_html %>%
+  # Get the nodes for the model names
+  html_nodes(".catalog-category-bikes__price-title") %>%
+  # Extract the prices from the text
+  html_text(trim = TRUE) %>%
+  strsplit(split = "\n") %>%
+            unlist() %>%
+            .[. != ""] %>%
+  str_replace_all(pattern = "from €", replacement = "") %>% 
+  # Convert the result into number
+  parse_number() %>%
+  # Convert vector to tibble
+  enframe(name = "position", value = "price") %>%
+  # Add a new column to turn the price numbers into a currency format 
+  mutate(price = scales::dollar(price, big.mark = ".", 
+                                   decimal.mark = ",", 
+                                   prefix = "", 
+                                   suffix = " €")) %>%
+  select(-(position))
+  
+# Print ROSE's Road Bikes model prices
+rosebike_mtb_mdl_prices
+
+# Join tables (names and prices)
+rosebike_mtb_joined_mdl <- left_join(rosebike_mtb_mdl_names,rosebike_mtb_mdl_prices, by = character())
+# Output the joined model, category and prices of ROSE's bikes
+rosebike_mtb_joined_mdl 
+
+```
+
 
 Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
 
