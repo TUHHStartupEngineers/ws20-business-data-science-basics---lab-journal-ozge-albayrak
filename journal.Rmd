@@ -21,7 +21,7 @@ knitr::opts_chunk$set(message=FALSE,warning=FALSE, cache=TRUE)
 This is an `.Rmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
 
 # Challenge #1 - Sales Analysis
-
+Last compiled: `r Sys.Date()`
 ## Sales Analysis by State 
 ```{r plot, fig.width=15, fig.height=7}
 
@@ -117,7 +117,8 @@ sales_by_location_year_tbl
 sales_by_location_year_tbl %>% 
   ggplot(aes(x = year, y = sales, fill = state)) +
   geom_col() +
-  geom_smooth(method = "lm", se = FALSE) + # Adding a trendline
+  geom_label(aes(label = sales_text)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   
   facet_wrap(~ state) +
   
@@ -125,19 +126,27 @@ sales_by_location_year_tbl %>%
                                                     decimal.mark = ",", 
                                                     prefix = "", 
                                                     suffix = " €")) +
+  
+# labs(
+#    title    = "Revenue by Year (2015-2019) and State",
+#   subtitle = "North Rhine-Westphalia state has the highest revenue.", 
+#    x = "",
+#   fill = "States" 
+#  )
 
-  labs(
-    title    = "Revenue by Year (2015-2019) and State",
-    subtitle = "North Rhine-Westphalia state has the highest revenue.", 
-    x = "",
-    fill = "States" 
-  )
-
+    labs(
+        title = str_glue("Revenue by Year (2015-2019) and State"),
+        subtitle = str_glue(
+              "Start: {min(sales_by_location_year_tbl$year)}
+               End:  {max(sales_by_location_year_tbl$year)}"),
+        x = "Year",
+        y = "Sales (€)",
+        caption = str_glue("North Rhine-Westphalia state has the highest revenue.")
+    ) 
 ```
 
-Last compiled: `r Sys.Date()`
-
 # Challenge #2 - API & WEB Scraping
+Last compiled: `r Sys.Date()`
 
 For Challenge 2 Part 1, I used an API for predicting nationality from a name (Nationalize.io). The website predicts the nationality of a person according to the given name. 
 
@@ -251,7 +260,9 @@ rosebike_mtb_joined_mdl <- left_join(rosebike_mtb_mdl_names,rosebike_mtb_mdl_pri
 rosebike_mtb_joined_mdl 
 
 ```
-# Challenge #3 
+# Challenge #3 - Data Wrangling
+
+Last compiled: `r Sys.Date()`
 ```{r  calculation, eval=FALSE}
 # Load Libraries
 library(data.table)
@@ -353,77 +364,156 @@ setDT(assignee_data_tbl)
 tic()
 patent_dominance_US_tbl <- assignee_data_tbl[!is.na(organization) & type == 2, .(patent_id, assignee_id, type, organization)]
 toc()
-
 patent_dominance <- patent_dominance_US_tbl %>%
   group_by(organization) %>%
   summarise(Patents = length(patent_id)) %>% 
   arrange(desc(Patents)) %>%
   slice(1:10)
-
 patent_dominance
 rm(patent_dominance_US_tbl)
-
 ```
 ## Question 2 - Recent Patent Activity
 ```{r}
+# What US company had the most patents granted in 2014?
+library(tictoc)
 
 # Join 'assignee_data_tbl' and patent_data_tbl'
-combined_data <- patent_data_tbl %>%
-  mutate(assignee_data_tbl) %>%
-  select(-num_claims)
+#combined_data <- patent_data_tbl %>%
+#  mutate(assignee_data_tbl) %>%
+#  select(-num_claims)
 
-tic()
-patent_dominance_by_year_US_tbl <- combined_data[!is.na(organization) & type == 2 & year == 2014, .(patent_id, assignee_id, date, year, type, organization)]
-toc()
+#patent_dominance_by_year_US_tbl <- combined_data[!is.na(organization) & type == 2 & year == 2014, .(patent_id, assignee_id, date, year, type, organization)]
 
-patent_dominance_by_year <-patent_dominance_by_year_US_tbl  %>%
-  group_by(organization) %>%
-  summarise(Patents_Total = length(patent_id)) %>% 
-   arrange(desc(Patents_Total)) %>%
-  slice(1:10)
+#patent_dominance_by_year <-patent_dominance_by_year_US_tbl  %>%
+ # group_by(organization) %>%
+  #summarise(Patents_Total = length(patent_id)) %>% 
+   #arrange(desc(Patents_Total)) %>%
+  #slice(1:10)
+#patent_dominance_by_year
+#rm(patent_dominance_by_year_US_tbl)
 
-patent_dominance_by_year
-rm(patent_dominance_by_year_US_tbl)
 #rm(combined_data)
 
 ```
 ## Question 3- Innovation in Tech
 ```{r calculation1, eval=FALSE}
 
+# What is the most innovative tech sector? 
+# For the top 10 companies (worldwide) with the most patents, 
+# what are the top 5 USPTO tech main classes?
+  
 ## !!! I AM NOT ABLE TO RUN THIS CODE DUE TO LIMITED MEMORY !!! 
-
-# Join 'assignee_data_tbl', patent_assignee_data_tbl' and 'uspc_data_tbl'
-
 
   
 
 
 ```
-Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
-
-## Second level header
-
-You can add more headers by adding more hashtags. These won't be put into the table of contents
-
-### third level header
-
-Here's an even lower level header
-
-# My second post (note the order)
-
+# Challenge #4 - Data Visualization 
 Last compiled: `r Sys.Date()`
-
-I'm writing this tutorial going from the top down. And, this is how it will be printed. So, notice the second post is second in the list. If you want your most recent post to be at the top, then make a new post starting at the top. If you want the oldest first, do, then keep adding to the bottom
-
-# Adding R stuff
-
-So far this is just a blog where you can write in plain text and serve your writing to a webpage. One of the main purposes of this lab journal is to record your progress learning R. The reason I am asking you to use this process is because you can both make a website, and a lab journal, and learn R all in R-studio. This makes everything really convenient and in the same place. 
-
-So, let's say you are learning how to make a histogram in R. For example, maybe you want to sample 100 numbers from a normal distribution with mean = 0, and standard deviation = 1, and then you want to plot a histogram. You can do this right here by using an r code block, like this:
-
 ```{r}
-samples <- rnorm(100, mean=0, sd=1)
-hist(samples)
+# Load libraries 
+library(tidyverse)
+library(ggrepel)
+library(maps)
+library(lubridate)
+
+```
+## CHALLENGE 1 - COVID 19 Cases Worldwide
+```{r plot4, fig.width=10, fig.height=10}
+# Reading the data
+covid_data_tbl <- read_csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+
+# Selecting the countries 
+selected_countries <- c("Germany", "India", "Turkey", "Egypt", "Netherlands", "Switzerland", "United_Kingdom", "United_States_of_America")
+
+selected_countries_tbl <- covid_data_tbl %>% group_by(countriesAndTerritories) %>%
+  filter(countriesAndTerritories %in% selected_countries) 
+
+cumulative_covid_data_tbl <- selected_countries_tbl %>%
+  mutate(date = dmy(dateRep)) %>%
+  rename(country = countriesAndTerritories, 
+         continent = continentExp) %>%
+  select(date, day, month, year, country, continent, cases, deaths) %>%
+  arrange(country, date) %>%
+  filter(year == 2020) %>%
+  mutate(cum_sum = ave(cases, country, FUN=cumsum))
+
+max_cum_cases <- cumulative_covid_data_tbl %>% slice_max(cum_sum) %>%
+  mutate(max_value = scales::dollar(cum_sum, big.mark = ".", 
+                                     decimal.mark = ",", 
+                                     prefix = "", 
+                                     suffix = " cases"))
+
+cumulative_covid_data_tbl %>%
+  ggplot(aes(x = date, y = cum_sum, color = country)) +
+  geom_line(size = 1.5) +
+  expand_limits(y = 0) +
+  scale_color_brewer(palette = "Paired") +
+  # Date scaling 
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  scale_y_continuous(labels = scales::dollar_format(scale = 1e-6, 
+                                                    prefix = "", 
+                                                    suffix = " M")) +
+
+  labs(
+    title = "Confirmed COVID-19 cases worldwide",
+    subtitle = "The United States has the highest cases.",
+    x = "Year 2020",
+    y = "Cumulative Cases",
+    color = "Countary/Continent") +
+  # Labeling the max. number of cases
+  geom_label_repel(aes(x = date, y = cum_sum, label = cum_sum), 
+                   data = max_cum_cases,
+                   label = max_cum_cases$max_value,
+                   show.legend = FALSE,
+                   size = 5) +
+  # Using minimal theme 
+  theme_minimal() +
+  theme(
+        legend.position  = "bottom", 
+        legend.direction = "horizontal",
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(face = "bold"),
+        axis.text = element_text(size = "15")
+        )
+
 ```
 
-When you knit this R Markdown document, you will see that the histogram is printed to the page, along with the R code. This document can be set up to hide the R code in the webpage, just delete the comment (hashtag) from the cold folding option in the yaml header up top. For purposes of letting yourself see the code, and me see the code, best to keep it the way that it is. You'll learn that all of these things and more can be customized in each R code block.
+## CHALLENGE 2 - Morality Rate
+```{r plot5, fig.width=7, fig.height=4}
+library(tictoc)
+
+world_map <- map_data("world")
+covid_deaths <- covid_data_tbl %>%
+  filter(year == 2020) %>%
+  group_by(countriesAndTerritories) %>%
+  summarise(mortality_rate = sum(deaths/popData2019)) %>%
+  mutate(across(countriesAndTerritories, str_replace_all, "_", " ")) %>%
+  mutate(countriesAndTerritories = case_when(
+    
+    countriesAndTerritories == "United Kingdom" ~ "UK",
+    countriesAndTerritories == "United States of America" ~ "USA",
+    countriesAndTerritories == "Czechia" ~ "Czech Republic",
+    TRUE ~ countriesAndTerritories)) %>%
+    rename(region = countriesAndTerritories)
+
+tic()
+combined_covid_data_tbl <- covid_deaths %>%
+  right_join(world_map, by = "region")
+toc()
+
+combined_covid_data_tbl %>% 
+  ggplot() +
+  geom_map(aes(long, lat, map_id = region, fill = mortality_rate), map = world_map) +
+  scale_fill_gradient(low = "grey", high = "red", labels = scales::percent) +
+  
+  labs(
+    title = "Confirmed COVID-19 deaths relative to the size of the population",
+    subtitle = "1.5 Million confirmed COVID-19 deaths worldwide ",
+    caption = str_glue("December 2020"),
+    fill = "Mortality Rate",
+    x = "",
+    y = "")
+
+```
+Last compiled: `r Sys.Date()`
