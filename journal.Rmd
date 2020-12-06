@@ -143,7 +143,7 @@ For Challenge 2 Part 1, I used an API for predicting nationality from a name (Na
 
 ## Part 1 - API Data
 ### Predicting Nationality by Name
-```{r Challenge 2 - Data Acqusition Part 1}
+```{r}
 
 library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
 library(rvest)     # HTML Hacking & Web Scraping
@@ -171,7 +171,7 @@ resp_tbl
 ```
 ## Part 2 - Web Scraping 
 ### Rosé Bikes
-```{r Challenge 2 - Data Acqusition Part 2}
+```{r}
 library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
 library(rvest)     # HTML Hacking & Web Scraping
 library(xopen)     # Quickly opening URLs
@@ -252,13 +252,14 @@ rosebike_mtb_joined_mdl
 
 ```
 # Challenge #3 
-```{r}
+```{r  calculation, eval=FALSE}
 # Load Libraries
 library(data.table)
 library(tidyverse)
 library(vroom)  
 library(lubridate)
 library(tictoc)
+library(glue) 
 
 # Import Data
 # Import: "assignee", "patent_assignee", "patent", and "uspc".
@@ -280,8 +281,6 @@ assignee_data_tbl <- vroom(
   col_types  = assignee_col_types,
   na         = c("", "NA", "NULL"))
 
-setDT(assignee_data_tbl)
-
 # Import Patent 
 patent_col_types <- list(
   id = col_character(),
@@ -302,7 +301,7 @@ patent_data_tbl <- vroom(
   col_types = patent_col_types,
   na         = c("", "NA", "NULL"))
 
-setDT(patent_data_tbl)
+path <- "data-science/00_data/04_patent_data_reduced/"
 
 # Import Patent Assignee 
 patent_assignee_col_types <- list(
@@ -316,7 +315,7 @@ patent_assignee_data_tbl <- vroom(
   col_types  = patent_assignee_col_types,
   na         = c("", "NA", "NULL"))
 
-setDT(patent_assignee_data_tbl)
+path <- "data-science/00_data/04_patent_data_reduced/"
 
 # Import USPC 
 uspc_col_types <- list(
@@ -332,11 +331,10 @@ uspc_data_tbl <- vroom(
   col_types  = uspc_col_types,
   na         = c("", "NA", "NULL"))
 
-setDT(uspc_data_tbl)
-
 # Wrangling the Data
 library(lubridate)
 
+# Get the date 
 patent_data_tbl <- patent_data_tbl %>% 
   mutate(year = year(date))
 # Joining Data
@@ -347,7 +345,7 @@ patent_data_tbl <- patent_assignee_data_tbl %>%
 
 ```
 ## Question 1 - Patent Dominance
-```{r Challenge 3 - Data Wrangling Part 1}
+```{r}
 # What US company / corporation has the most patents?
 
 # Filter by type = 2, getting US Companies/Organizations
@@ -363,22 +361,41 @@ patent_dominance <- patent_dominance_US_tbl %>%
   slice(1:10)
 
 patent_dominance
+rm(patent_dominance_US_tbl)
 
 ```
 ## Question 2 - Recent Patent Activity
-```{r Challenge 3 - Data Wrangling Part 2}
+```{r}
 
+# Join 'assignee_data_tbl' and patent_data_tbl'
+combined_data <- patent_data_tbl %>%
+  mutate(assignee_data_tbl) %>%
+  select(-num_claims)
 
+tic()
+patent_dominance_by_year_US_tbl <- combined_data[!is.na(organization) & type == 2 & year == 2014, .(patent_id, assignee_id, date, year, type, organization)]
+toc()
 
+patent_dominance_by_year <-patent_dominance_by_year_US_tbl  %>%
+  group_by(organization) %>%
+  summarise(Patents_Total = length(patent_id)) %>% 
+   arrange(desc(Patents_Total)) %>%
+  slice(1:10)
 
+patent_dominance_by_year
+rm(patent_dominance_by_year_US_tbl)
+#rm(combined_data)
 
 ```
 ## Question 3- Innovation in Tech
-```{r Challenge 3 - Data Wrangling Part 3}
+```{r calculation1, eval=FALSE}
+
+## !!! I AM NOT ABLE TO RUN THIS CODE DUE TO LIMITED MEMORY !!! 
+
+# Join 'assignee_data_tbl', patent_assignee_data_tbl' and 'uspc_data_tbl'
 
 
-
-
+  
 
 
 ```
