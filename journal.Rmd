@@ -251,8 +251,137 @@ rosebike_mtb_joined_mdl <- left_join(rosebike_mtb_mdl_names,rosebike_mtb_mdl_pri
 rosebike_mtb_joined_mdl 
 
 ```
+# Challenge #3 
+```{r}
+# Load Libraries
+library(data.table)
+library(tidyverse)
+library(vroom)  
+library(lubridate)
+library(tictoc)
+
+# Import Data
+# Import: "assignee", "patent_assignee", "patent", and "uspc".
+
+# Import Assignee
+assignee_col_types <- list(
+  id = col_character(),
+  type = col_character(),
+  name_first = col_character(),
+  name_last = col_character(),
+  organization = col_character()
+)
+
+path <- "data-science/00_data/04_patent_data_reduced/"
+
+assignee_data_tbl <- vroom(
+  file       = glue("{path}assignee.tsv"), 
+  delim      = "\t", 
+  col_types  = assignee_col_types,
+  na         = c("", "NA", "NULL"))
+
+setDT(assignee_data_tbl)
+
+# Import Patent 
+patent_col_types <- list(
+  id = col_character(),
+  type = col_character(),
+  number = col_character(),
+  country = col_character(),
+  date = col_date("%Y-%m-%d"),
+  abstract = col_character(),
+  title = col_character(),
+  kind = col_character(),
+  num_claims = col_double(),
+  filename = col_character(),
+  withdrawn = col_character())
+
+patent_data_tbl <- vroom(
+  file       = glue("{path}patent.tsv"), 
+  delim      = "\t",
+  col_types = patent_col_types,
+  na         = c("", "NA", "NULL"))
+
+setDT(patent_data_tbl)
+
+# Import Patent Assignee 
+patent_assignee_col_types <- list(
+    patent_id = col_character(),
+    assignee_id = col_character(),
+   location_id = col_character())
+
+patent_assignee_data_tbl <- vroom(
+  file       = glue("{path}patent_assignee.tsv"), 
+  delim      = "\t", 
+  col_types  = patent_assignee_col_types,
+  na         = c("", "NA", "NULL"))
+
+setDT(patent_assignee_data_tbl)
+
+# Import USPC 
+uspc_col_types <- list(
+  uuid = col_character(),
+  patent_id = col_character(),
+  mainclass_id = col_character(),
+  subclass_id = col_character(),
+  sequence = col_double())
+
+uspc_data_tbl <- vroom(
+  file       = glue("{path}uspc.tsv"),
+  delim      = "\t", 
+  col_types  = uspc_col_types,
+  na         = c("", "NA", "NULL"))
+
+setDT(uspc_data_tbl)
+
+# Wrangling the Data
+library(lubridate)
+
+patent_data_tbl <- patent_data_tbl %>% 
+  mutate(year = year(date))
+# Joining Data
+assignee_data_tbl <- patent_assignee_data_tbl %>%
+  left_join(assignee_data_tbl, by = c("assignee_id" = "id"))
+patent_data_tbl <- patent_assignee_data_tbl %>%
+  left_join(patent_data_tbl, by = c("patent_id" = "id"))
+
+```
+## Question 1 - Patent Dominance
+```{r Challenge 3 - Data Wrangling Part 1}
+# What US company / corporation has the most patents?
+
+# Filter by type = 2, getting US Companies/Organizations
+setDT(assignee_data_tbl)
+tic()
+patent_dominance_US_tbl <- assignee_data_tbl[!is.na(organization) & type == 2, .(patent_id, assignee_id, type, organization)]
+toc()
+
+patent_dominance <- patent_dominance_US_tbl %>%
+  group_by(organization) %>%
+  summarise(Patents = length(patent_id)) %>% 
+  arrange(desc(Patents)) %>%
+  slice(1:10)
+
+patent_dominance
+
+```
+## Question 2 - Recent Patent Activity
+```{r Challenge 3 - Data Wrangling Part 2}
 
 
+
+
+
+```
+## Question 3- Innovation in Tech
+```{r Challenge 3 - Data Wrangling Part 3}
+
+
+
+
+
+
+```
 Notice that whatever you define as a top level header, automatically gets put into the table of contents bar on the left. 
 
 ## Second level header
