@@ -117,7 +117,7 @@ sales_by_location_year_tbl
 sales_by_location_year_tbl %>% 
   ggplot(aes(x = year, y = sales, fill = state)) +
   geom_col() +
-  geom_label(aes(label = sales_text)) +
+# geom_label(aes(label = sales_text)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   
   facet_wrap(~ state) +
@@ -375,7 +375,6 @@ rm(patent_dominance_US_tbl)
 ## Question 2 - Recent Patent Activity
 ```{r}
 # What US company had the most patents granted in 2014?
-library(tictoc)
 
 # Join 'assignee_data_tbl' and patent_data_tbl'
 #combined_data <- patent_data_tbl %>%
@@ -516,4 +515,5 @@ combined_covid_data_tbl %>%
     y = "")
 
 ```
+
 Last compiled: `r Sys.Date()`
