@@ -23,12 +23,15 @@ This is an `.Rmd` file. It is plain text with special features. Any time you wri
 # Challenge #1 - Sales Analysis
 Last compiled: `r Sys.Date()`
 ## Sales Analysis by State 
-```{r plot, fig.width=15, fig.height=7}
+```{r}
 
 # Load libraries ----
 library(tidyverse)
 library(readxl)
 
+```
+## Sales by State ----
+```{r plot, fig.width=15, fig.height=7}
 # Importing Files ----
 bikeshops_tbl <- read_excel("data-science/00_data/01_bike_sales/01_raw_data/bikeshops.xlsx")
 
@@ -59,8 +62,6 @@ bike_orderlines_wrangled_tbl <- bike_orderlines_joined_tbl %>%
   set_names(names(.) %>% str_replace_all("\\.", "_"))
 
 bike_orderlines_wrangled_tbl
-
-# Sales by State ----
 
 # Manipulate
 
@@ -93,9 +94,10 @@ sales_by_location_tbl %>%
   )
   
 theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
 ```
 
-## Sales Analysis between 2015-2019 by State
+## Sales Analysis 2015-2019 by State ----
 ```{r plot1, fig.width=15, fig.height=7}
 # Manipulate
 library(lubridate)
@@ -117,7 +119,6 @@ sales_by_location_year_tbl
 sales_by_location_year_tbl %>% 
   ggplot(aes(x = year, y = sales, fill = state)) +
   geom_col() +
-# geom_label(aes(label = sales_text)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   
   facet_wrap(~ state) +
@@ -128,7 +129,7 @@ sales_by_location_year_tbl %>%
                                                     suffix = " €")) +
   
 # labs(
-#    title    = "Revenue by Year (2015-2019) and State",
+#    title    = "Revenue by Year and State",
 #   subtitle = "North Rhine-Westphalia state has the highest revenue.", 
 #    x = "",
 #   fill = "States" 
@@ -150,7 +151,7 @@ Last compiled: `r Sys.Date()`
 
 For Challenge 2 Part 1, I used an API for predicting nationality from a name (Nationalize.io). The website predicts the nationality of a person according to the given name. 
 
-## Part 1 - API Data
+## Part 1 - API Data ----
 ### Predicting Nationality by Name
 ```{r}
 
@@ -178,7 +179,7 @@ resp_tbl <- fromJSON(content(resp, as = "text")) %>%
 resp_tbl
 
 ```
-## Part 2 - Web Scraping 
+## Part 2 - Web Scraping ----
 ### Rosé Bikes
 ```{r}
 library(tidyverse) # Main Package - Loads dplyr, purrr, etc.
@@ -355,7 +356,7 @@ patent_data_tbl <- patent_assignee_data_tbl %>%
   left_join(patent_data_tbl, by = c("patent_id" = "id"))
 
 ```
-## Question 1 - Patent Dominance
+## Q1 - Patent Dominance ----
 ```{r}
 # What US company / corporation has the most patents?
 
@@ -372,29 +373,33 @@ patent_dominance <- patent_dominance_US_tbl %>%
 patent_dominance
 rm(patent_dominance_US_tbl)
 ```
-## Question 2 - Recent Patent Activity
+## Q2 - Recent Patent Activity ----
 ```{r}
 # What US company had the most patents granted in 2014?
 
 # Join 'assignee_data_tbl' and patent_data_tbl'
-#combined_data <- patent_data_tbl %>%
-#  mutate(assignee_data_tbl) %>%
-#  select(-num_claims)
+combined_data <- patent_data_tbl %>%
+  mutate(assignee_data_tbl) %>%
+  select(-num_claims)
 
-#patent_dominance_by_year_US_tbl <- combined_data[!is.na(organization) & type == 2 & year == 2014, .(patent_id, assignee_id, date, year, type, organization)]
+setDT(combined_data)
+tic()
+patent_dominance_by_year_US_tbl <- combined_data[!is.na(organization) & type == 2 & year == 2014, .(patent_id, assignee_id, date, year, type, organization)]
+toc()
 
-#patent_dominance_by_year <-patent_dominance_by_year_US_tbl  %>%
- # group_by(organization) %>%
-  #summarise(Patents_Total = length(patent_id)) %>% 
-   #arrange(desc(Patents_Total)) %>%
-  #slice(1:10)
-#patent_dominance_by_year
+patent_dominance_by_year <-patent_dominance_by_year_US_tbl  %>%
+  group_by(organization) %>%
+  summarise(Patents_Total = length(patent_id)) %>% 
+  arrange(desc(Patents_Total)) %>%
+  slice(1:10)
+
+patent_dominance_by_year
+
 #rm(patent_dominance_by_year_US_tbl)
-
 #rm(combined_data)
 
 ```
-## Question 3- Innovation in Tech
+## Q3- Innovation in Tech ----
 ```{r calculation1, eval=FALSE}
 
 # What is the most innovative tech sector? 
@@ -417,7 +422,7 @@ library(maps)
 library(lubridate)
 
 ```
-## CHALLENGE 1 - COVID 19 Cases Worldwide
+## Challenge 1 - COVID 19 Cases Worldwide ----
 ```{r plot4, fig.width=10, fig.height=10}
 # Reading the data
 covid_data_tbl <- read_csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
@@ -441,7 +446,7 @@ max_cum_cases <- cumulative_covid_data_tbl %>% slice_max(cum_sum) %>%
   mutate(max_value = scales::dollar(cum_sum, big.mark = ".", 
                                      decimal.mark = ",", 
                                      prefix = "", 
-                                     suffix = " cases"))
+                                     suffix = " "))
 
 cumulative_covid_data_tbl %>%
   ggplot(aes(x = date, y = cum_sum, color = country)) +
@@ -478,7 +483,7 @@ cumulative_covid_data_tbl %>%
 
 ```
 
-## CHALLENGE 2 - Morality Rate
+## Challenge 2 - Mortality Rate ----
 ```{r plot5, fig.width=7, fig.height=4}
 library(tictoc)
 
